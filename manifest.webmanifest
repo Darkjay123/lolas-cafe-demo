@@ -1,0 +1,8 @@
+{
+  "name": "Lola's Cafe Abraka",
+  "short_name": "Lola's Cafe",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#faf4ea",
+  "theme_color": "#2c1e16"
+}
