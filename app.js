@@ -1,5 +1,6 @@
 /* Lola's Cafe demo — vanilla JS, no build step */
 const $ = (h) => { const t = document.createElement("template"); t.innerHTML = h.trim(); return t.content.firstElementChild; };
+const esc = s => String(s).replace(/[&<>"']/g, m => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));
 const fmt = (n) => "\u20A6" + n.toLocaleString("en-NG");
 const store = {
   get(k, d) { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } },
@@ -200,13 +201,13 @@ function checkout() {
   <a class="back" data-go="home">&larr; Back to menu</a>
   <div class="wrap" style="padding-top:2px">
     <h2 class="serif" style="font-size:22px;margin-bottom:14px">Checkout</h2>
-    <div class="field"><label>Your name</label><input id="f-name" placeholder="e.g. Chidera"></div>
-    <div class="field"><label>Phone number</label><input id="f-phone" inputmode="tel" placeholder="08xx xxx xxxx"></div>
+    <div class="field"><label>Your name</label><input id="f-name" placeholder="e.g. Chidera" value="${esc(c.name || "")}"></div>
+    <div class="field"><label>Phone number</label><input id="f-phone" inputmode="tel" placeholder="08xx xxx xxxx" value="${esc(c.phone || "")}"></div>
     <div class="field"><label>How are you getting it?</label>
       <div class="seg"><button class="${c.type === "pickup" ? "on" : ""}" data-type="pickup">Pickup at the cafe</button><button class="${c.type === "delivery" ? "on" : ""}" data-type="delivery">Delivery</button></div>
     </div>
-    ${c.type === "delivery" ? `<div class="field"><label>Delivery address</label><textarea id="f-addr" rows="2" placeholder="Hostel, street, landmark"></textarea></div>` : ""}
-    <div class="field"><label>Note for the kitchen (optional)</label><input id="f-note" placeholder="Extra sauce, no onions..."></div>
+    ${c.type === "delivery" ? `<div class="field"><label>Delivery address</label><textarea id="f-addr" rows="2" placeholder="Hostel, street, landmark">${esc(c.addr || "")}</textarea></div>` : ""}
+    <div class="field"><label>Note for the kitchen (optional)</label><input id="f-note" placeholder="Extra sauce, no onions..." value="${esc(c.note || "")}"></div>
     <div class="field"><label>Payment</label>
       <div class="seg"><button class="${c.pay !== "pickup" ? "on" : ""}" data-pay="online">Pay online now</button><button class="${c.pay === "pickup" ? "on" : ""}" data-pay="pickup">Pay at pickup</button></div>
     </div>
@@ -355,7 +356,7 @@ document.addEventListener("click", (e) => {
   if (t.dataset.openCart !== undefined) { state.cartOpen = true; render(); return; }
   if (t.dataset.cat !== undefined) { state.activeCat = t.dataset.cat || null; render(); return; }
   if (t.dataset.item) { const it = MENU.flatMap(c => c.items).find(x => x.id === t.dataset.item); state.item = it.id; render(); return; }
-  if (t.dataset.add) { const it = MENU.flatMap(c => c.items).find(x => x.id === t.dataset.add); addToCart(it, { mods: [], size: it.sizes ? it.sizes[0] : null }); state.cartOpen = true; return; }
+  if (t.dataset.add) { const it = MENU.flatMap(c => c.items).find(x => x.id === t.dataset.add); state.cartOpen = true; addToCart(it, { mods: [], size: it.sizes ? it.sizes[0] : null }); return; }
   if (t.dataset.addmodal) {
     const it = MENU.flatMap(c => c.items).find(x => x.id === t.dataset.addmodal);
     const mods = [...document.querySelectorAll("[data-mod]:checked")].map(cb => it.mods.find(m => m.id === cb.dataset.mod));
@@ -390,6 +391,12 @@ document.addEventListener("click", (e) => {
     return;
   }
   if (t.dataset.simtoggle !== undefined) { state.sim = !state.sim; store.set("lola_sim", state.sim); render(); return; }
+});
+document.addEventListener("input", (e) => {
+  if (e.target.id === "f-name") state.checkout.name = e.target.value;
+  if (e.target.id === "f-phone") state.checkout.phone = e.target.value;
+  if (e.target.id === "f-note") state.checkout.note = e.target.value;
+  if (e.target.id === "f-addr") state.checkout.addr = e.target.value;
 });
 document.addEventListener("keydown", (e) => { if (e.key === "Escape") { state.item = null; state.cartOpen = false; state.payFor = null; render(); } });
 function updateLivePrice() {
