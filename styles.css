@@ -125,4 +125,8 @@ a{color:inherit}
 .ftr .admin-link{opacity:.45;font-size:10.5px;margin-top:10px;display:inline-block}
 
 .back{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--ink2);padding:14px 18px 2px}
+.track-pill{border:1.5px solid var(--line);background:#fff;border-radius:99px;padding:9px 13px;font-size:12px;font-weight:700;color:var(--ink)}
+.livebar{display:flex;align-items:center;gap:9px;width:calc(100% - 36px);margin:12px 18px 0;background:var(--ink);color:#fff;border-radius:14px;padding:12px 15px;font-size:12.5px;font-weight:600;box-shadow:var(--shadow);text-align:left}
+.livebar i{width:9px;height:9px;border-radius:50%;background:var(--amber);flex-shrink:0;animation:pulse 1.2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
 .sim-toggle{position:fixed;bottom:14px;right:14px;z-index:50;background:rgba(44,30,22,.92);color:#fff;font-size:11px;font-weight:600;border-radius:99px;padding:8px 13px;box-shadow:var(--shadow)}

@@ -9,10 +9,11 @@ const STATUSES = [
   { id: "placed", label: "Order placed" },
   { id: "confirmed", label: "Confirmed" },
   { id: "kitchen", label: "In the kitchen" },
-  { id: "ready", label: "Being served" },
+  { id: "ready", label: "Ready for pickup" },
   { id: "completed", label: "Completed" }
 ];
 const NEXT = { placed: "confirmed", confirmed: "kitchen", kitchen: "ready", ready: "completed" };
+const SLABEL = Object.fromEntries(STATUSES.map(s => [s.id, s.label]));
 
 const state = {
   cart: store.get("lola_cart", []),
@@ -85,7 +86,7 @@ function header() {
     <div class="brand"><b>Lola's Cafe</b><span>Abraka</span></div>
     <div class="tools">
       <span class="chip">DEMO</span>
-      <button class="icon-btn" data-go="track">&#128241;</button>
+      <button class="track-pill" data-go="track">Track order</button>
       <button class="icon-btn" data-open-cart>&#128722;${n ? `<i class="n">${n}</i>` : ""}</button>
     </div>
   </div>`;
@@ -134,10 +135,14 @@ function footer() {
     ${DEMO.hours} &middot; ${DEMO.phone} / ${DEMO.phone2}
     <div class="demo-note">Demo build. Menu items and prices are samples, payment is simulated. The real build plugs in Lola's actual menu.</div>
     Demo built by John Enechukwu<br>
-    <a class="admin-link" href="#admin">demo kitchen panel</a>
+    <a class="admin-link" href="#track">track an order</a> &middot; <a class="admin-link" href="#admin">demo kitchen panel</a>
   </div>`;
 }
-function home() { return header() + hero() + menu() + footer(); }
+function home() {
+  const active = state.orders.find(o => o.status !== "completed");
+  const live = active ? `<button class="livebar" data-track="${active.id}"><i></i>${active.id} &middot; ${SLABEL[active.status]} &middot; Track your order &rarr;</button>` : "";
+  return header() + hero() + live + menu() + footer();
+}
 
 function itemModal() {
   const cat = MENU.flatMap(c => c.items.map(i => ({ c, i }))).find(x => x.i.id === state.item);
@@ -277,7 +282,7 @@ function trackView(id) {
       ${STATUSES.map((s, i) => `
         <div class="tstep ${i < idx ? "done" : ""} ${i === idx ? "now" : ""} ${i > idx ? "pending" : ""}">
           <div class="dot">${i < idx ? "&#10003;" : ""}</div>
-          <div><b>${s.label}</b>${i === idx && s.id !== "completed" ? `<span>Currently here &middot; live</span>` : i < idx && o.events.find(e => e.s === s.id) ? `<span>${new Date(o.events.find(e => e.s === s.id).t).toLocaleTimeString("en-NG", { hour: "numeric", minute: "2-digit" })}</span>` : ""}</div>
+          <div><b>${s.id === "ready" && o.type === "delivery" ? "Out for delivery" : s.label}</b>${i === idx && s.id !== "completed" ? `<span>Currently here &middot; live</span>` : i < idx && o.events.find(e => e.s === s.id) ? `<span>${new Date(o.events.find(e => e.s === s.id).t).toLocaleTimeString("en-NG", { hour: "numeric", minute: "2-digit" })}</span>` : ""}</div>
         </div>`).join("")}
     </div>
     <div style="background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px">
