@@ -4,9 +4,9 @@ const LolaWow = (() => {
   const FINE = matchMedia("(hover: hover) and (pointer: fine)").matches;
   const get = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } };
   const set = (k, v) => localStorage.setItem(k, JSON.stringify(v));
-  const GOAL = 9, STEP = 1000, FREE = "Signature Burger";
-  const stampCount = () => get("lola_stamps", 0);
-  let earnedNow = 0, beforeNow = 0, lastCount = 0, firstLoad = true, heroImg = null, hadOverlay = false;
+  const GOAL = 10, STEP = 10000, FREE = "Chicken Shawarma";
+  const stampCount = () => Math.floor(get("lola_spend", 0) / STEP);
+  let earnedNow = 0, beforeNow = 0, toNext = 0, lastCount = 0, firstLoad = true, heroImg = null, hadOverlay = false;
 
   /* ---------- splash ---------- */
   function splash() {
@@ -78,9 +78,11 @@ const LolaWow = (() => {
 
   /* ---------- loyalty ---------- */
   function onOrder(o) {
-    earnedNow = Math.max(1, Math.floor(o.total / STEP));
-    beforeNow = stampCount();
-    set("lola_stamps", beforeNow + earnedNow);
+    const prevSpend = get("lola_spend", 0), spend = prevSpend + o.total;
+    beforeNow = Math.floor(prevSpend / STEP);
+    set("lola_spend", spend);
+    earnedNow = Math.floor(spend / STEP) - beforeNow;
+    toNext = earnedNow ? 0 : STEP - (spend % STEP);
   }
   function stampCard(fill, popFrom) {
     const slots = Array.from({ length: GOAL }, (_, i) => {
@@ -89,10 +91,10 @@ const LolaWow = (() => {
     }).join("");
     const freebies = Math.floor(fill / GOAL), prog = fill % GOAL;
     return '<div class="loyal">' +
-      '<div class="loyal-h"><b>Lola&rsquo;s Loyalty</b><span>' + (freebies ? freebies + " free reward" + (freebies > 1 ? "s" : "") + " unlocked" : "Collect 9 stamps, get a free " + FREE) + "</span></div>" +
+      '<div class="loyal-h"><b>Lola&rsquo;s Loyalty</b><span>' + (freebies ? freebies + " free reward" + (freebies > 1 ? "s" : "") + " unlocked" : "Collect 10 stamps, get a free " + FREE) + "</span></div>" +
       '<div class="loyal-row">' + slots + "</div>" +
       '<div class="loyal-p"><i style="width:' + (prog / GOAL) * 100 + '%"></i></div>' +
-      '<div class="loyal-f">' + prog + "/9 stamps &middot; every &#8358;1,000 spent = 1 stamp</div></div>";
+      '<div class="loyal-f">' + prog + "/10 stamps &middot; every &#8358;10,000 spent = 1 stamp</div></div>";
   }
   function toast(msg, ms) {
     document.querySelectorAll(".wow-toast").forEach(t => t.remove());
@@ -113,7 +115,8 @@ const LolaWow = (() => {
       toast("Free " + FREE + " unlocked! Show your stamps at the counter", 5200);
       setTimeout(() => confetti(innerWidth / 2, innerHeight * 0.4), 750);
     } else {
-      toast("+" + earnedNow + " stamp" + (earnedNow > 1 ? "s" : "") + " \u00b7 " + prog + " of 9 to a free " + FREE);
+      if (earnedNow) toast("+" + earnedNow + " stamp" + (earnedNow > 1 ? "s" : "") + " \u00b7 " + prog + " of 10 to a free " + FREE);
+      else toast("\u20a6" + toNext.toLocaleString() + " more to your next stamp");
     }
   }
   function injectChip() {
@@ -121,7 +124,7 @@ const LolaWow = (() => {
     if (!tools || tools.querySelector(".loyal-chip")) return;
     const chip = document.createElement("button");
     chip.className = "loyal-chip"; chip.type = "button";
-    chip.innerHTML = '<span aria-hidden="true">&#127991;</span><b>' + (stampCount() % GOAL) + "</b>/9";
+    chip.innerHTML = '<span aria-hidden="true">&#127991;</span><b>' + (stampCount() % GOAL) + "</b>/" + GOAL;
     chip.addEventListener("click", openSheet);
     tools.insertBefore(chip, tools.firstChild);
   }
