@@ -272,6 +272,7 @@ function trackView(id) {
     ${state.orders.length ? `<p style="font-size:12px;color:var(--ink2);margin-top:18px">Your recent orders: ${state.orders.slice(0, 3).map(x => `<a href="#track/${x.id}" style="font-weight:700;color:var(--ink)">${x.id}</a>`).join(" &middot; ")}</p>` : ""}
   </div>${footer()}`;
   const idx = STATUSES.findIndex(s => s.id === o.status);
+  const labels = SLABEL;
   return `
   ${header()}
   <a class="back" data-go="home">&larr; Menu</a>
