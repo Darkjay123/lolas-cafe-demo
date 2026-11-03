@@ -97,7 +97,7 @@ function header() {
 function hero() {
   return `
   <div class="hero">
-    <img src="img/burger.jpg" alt="Signature burger and golden fries">
+    <img src="img/burger.webp" alt="Signature burger and golden fries" width="1200" height="1200">
     <div class="veil"></div>
     <div class="inner">
       <h1>Order ahead.<br>Skip the wait.</h1>

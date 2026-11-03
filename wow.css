@@ -38,8 +38,10 @@ body:not(.settled) .hero{animation:heroIn .9s cubic-bezier(.34,1.25,.64,1) both}
 @keyframes marq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 
 /* ---------- menu cards ---------- */
-.pills,.wrap{perspective:900px}
-.item-card{transform-style:preserve-3d;will-change:transform}
+@media (hover:hover) and (pointer:fine){
+  .pills,.wrap{perspective:900px}
+  .item-card{transform-style:preserve-3d;will-change:transform}
+}
 .item-card .add{transition:transform .18s cubic-bezier(.34,1.8,.64,1),background .18s ease}
 .item-card .add:hover{transform:scale(1.12) rotate(90deg)}
 .item-card .add:active{transform:scale(.82)}
