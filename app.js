@@ -33,6 +33,7 @@ let seq = store.get("lola_seq", 1042);
 const nextId = () => { seq++; store.set("lola_seq", seq); return "LC-" + seq; };
 const cartCount = () => state.cart.reduce((a, c) => a + c.qty, 0);
 const cartTotal = () => state.cart.reduce((a, c) => a + c.price * c.qty, 0);
+const KITCHEN = /kitchen\.html$/.test(location.pathname);
 
 function addToCart(item, opts) {
   const key = item.id + "|" + (opts.mods.map(m => m.id).join(",") + "|" + (opts.size ? opts.size.id : ""));
@@ -138,7 +139,7 @@ function footer() {
     ${DEMO.hours} &middot; ${DEMO.phone} / ${DEMO.phone2}
     <div class="demo-note">Demo build. Menu items and prices are samples, payment is simulated. The real build plugs in Lola's actual menu.</div>
     Demo built by John Enechukwu<br>
-    <a class="admin-link" href="#track">track an order</a> &middot; <a class="admin-link" href="#admin">demo kitchen panel</a>
+    ${KITCHEN ? "Staff kitchen panel" : '<a class="admin-link" href="#track">track an order</a>'}
   </div>`;
 }
 function home() {
@@ -444,7 +445,8 @@ function updateLivePrice() {
 }
 function route() {
   const h = location.hash;
-  if (h.startsWith("#admin")) { state.view = "admin"; }
+  if (KITCHEN) { state.view = "admin"; }
+  else if (h.startsWith("#admin")) { history.replaceState(null, "", location.pathname + location.search); state.view = "home"; }
   else if (h.startsWith("#track/")) { state.view = "track"; state.trackId = h.split("/")[1]; }
   else if (h === "#track") { state.view = "track"; state.trackId = null; }
   else state.view = "home";
