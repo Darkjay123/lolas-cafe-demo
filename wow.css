@@ -156,3 +156,9 @@ body:not(.settled) .hero{animation:heroIn .9s cubic-bezier(.34,1.25,.64,1) both}
   .loyal::after,.cat::after{animation:none}
   .cart-bar{transition:none}
 }
+
+/* ===== zoom lock ===== */
+/* iOS auto-zooms into any field with text under 16px: every input reads at 16px minimum */
+input,textarea,select{font-size:max(16px,1em)!important}
+/* kill the double-tap zoom delay/zoom on taps, pinch still works */
+body{touch-action:manipulation}
