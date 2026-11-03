@@ -368,7 +368,7 @@ document.addEventListener("click", (e) => {
     if (e.target.closest("[data-sheet]")) return;
     state.item = null; state.cartOpen = false; state.payFor = null; render(); return;
   }
-  if (t.dataset.go) { state.view = t.dataset.go; state.item = null; state.cartOpen = false; if (t.dataset.go !== "track") state.trackError = false; render(); return; }
+  if (t.dataset.go) { state.view = t.dataset.go; state.item = null; state.cartOpen = false; state.trackError = false; if (t.dataset.go === "track") { state.trackId = null; if (location.hash.startsWith("#track/")) location.hash = "#track"; } render(); return; }
   if (t.dataset.openCart !== undefined) { state.cartOpen = true; render(); return; }
   if (t.dataset.cat !== undefined) { state.activeCat = t.dataset.cat || null; render(); return; }
   if (t.dataset.item) { const it = MENU.flatMap(c => c.items).find(x => x.id === t.dataset.item); state.item = it.id; render(); return; }
@@ -445,7 +445,7 @@ function route() {
   const h = location.hash;
   if (h.startsWith("#admin")) { state.view = "admin"; }
   else if (h.startsWith("#track/")) { state.view = "track"; state.trackId = h.split("/")[1]; }
-  else if (h === "#track") { state.view = "track"; }
+  else if (h === "#track") { state.view = "track"; state.trackId = null; }
   else state.view = "home";
   render();
 }
