@@ -25,7 +25,8 @@ const state = {
   item: null,
   checkout: { type: "pickup" },
   payFor: null,
-  lastOrder: null
+  lastOrder: null,
+  advanceArm: null
 };
 
 let seq = store.get("lola_seq", 1042);
@@ -263,10 +264,11 @@ function trackView(id) {
   const o = state.orders.find(x => x.id === id);
   if (!o) return `${header()}<div class="center"><h2 class="serif" style="font-size:22px">Track an order</h2>
     <p style="font-size:13px;color:var(--ink2);margin:8px 0 16px">Enter your order code:</p>
-    <div style="display:flex;gap:8px;max-width:300px;margin:0 auto">
-      <input id="t-id" placeholder="LC-1042" style="flex:1;border:1.5px solid var(--line);border-radius:13px;padding:12px;text-transform:uppercase">
-      <button class="btn" style="width:auto;padding:0 18px" data-tracklookup>Go</button>
-    </div>
+    <form id="t-form" style="display:flex;gap:8px;max-width:300px;margin:0 auto">
+      <input id="t-id" placeholder="LC-1042" style="flex:1;border:1.5px solid var(--line);border-radius:13px;padding:12px;text-transform:uppercase" autocomplete="off">
+      <button class="btn" type="submit" style="width:auto;padding:0 18px">Go</button>
+    </form>
+    ${state.trackError ? `<p style="font-size:12px;color:var(--red);margin-top:10px;font-weight:600">No order with that code in this browser. Demo orders live only on the device that placed them.</p>` : ""}
     ${state.orders.length ? `<p style="font-size:12px;color:var(--ink2);margin-top:18px">Your recent orders: ${state.orders.slice(0, 3).map(x => `<a href="#track/${x.id}" style="font-weight:700;color:var(--ink)">${x.id}</a>`).join(" &middot; ")}</p>` : ""}
   </div>${footer()}`;
   const idx = STATUSES.findIndex(s => s.id === o.status);
@@ -304,18 +306,21 @@ function adminView() {
   <a class="back" data-go="home">&larr; Menu</a>
   <div class="wrap" style="padding-top:0">
     <h2 class="serif" style="font-size:22px;margin:4px 0 0">Kitchen panel</h2>
-    <p style="font-size:12px;color:var(--ink2)">What Lola's team would see live. Tap a card to move the order along.</p>
+    <p style="font-size:12px;color:var(--ink2)">What Lola's team would see live. Tap a card once to arm it, then tap again to move the order along.</p>
     <div class="stat-row">
       <div class="stat"><b>${today.length}</b><span>Orders today</span></div>
       <div class="stat"><b>${fmt(rev)}</b><span>Revenue</span></div>
     </div>
     ${state.orders.length ? state.orders.map(o => `
-      <div class="ocard" data-advance="${o.id}" style="cursor:pointer">
+      <div class="ocard" data-advance="${o.id}" style="cursor:pointer;${state.advanceArm === o.id ? "border-color:var(--amber);box-shadow:0 0 0 3px var(--amber-soft)" : ""}">
         <div class="top"><b class="serif" style="font-size:16px">${o.id}</b><span class="badge b-${o.status}">${labels[o.status]}</span></div>
         <div class="items">${o.items.map(x => x.qty + "&times; " + x.name).join(" &middot; ")} &middot; ${o.name || "Guest"} &middot; ${o.type}</div>
         <div style="display:flex;justify-content:space-between;align-items:center">
           <span style="font-weight:800;font-size:14px">${fmt(o.total)}</span>
-          ${o.status !== "completed" ? `<span style="font-size:11px;font-weight:700;color:var(--amber)">Advance &rarr;</span>` : `<span style="font-size:11px;color:var(--ink2)">Done</span>`}
+          ${o.status !== "completed" ? (state.advanceArm === o.id
+            ? `<span style="font-size:11px;font-weight:700;color:var(--red)">Tap again to confirm &rarr;</span>`
+            : `<span style="font-size:11px;font-weight:700;color:var(--amber)">Advance &rarr;</span>`)
+          : `<span style="font-size:11px;color:var(--ink2)">Done</span>`}
         </div>
       </div>`).join("") : `<div class="ocard" style="text-align:center;color:var(--ink2);font-size:13px">No orders yet. Place one from the menu and watch it land here live.</div>`}
   </div>
@@ -349,8 +354,9 @@ function render() {
 }
 
 /* ---------- events ---------- */
+let armTimer = null;
 document.addEventListener("click", (e) => {
-  const t = e.target.closest("[data-go],[data-open-cart],[data-cat],[data-item],[data-add],[data-addmodal],[data-close],[data-q],[data-key],[data-type],[data-pay],[data-submit],[data-paynow],[data-track],[data-tracklookup],[data-advance],[data-simtoggle],[data-sid],a[href^='#track']");
+  const t = e.target.closest("[data-go],[data-open-cart],[data-cat],[data-item],[data-add],[data-addmodal],[data-close],[data-q],[data-key],[data-type],[data-pay],[data-submit],[data-paynow],[data-track],[data-advance],[data-simtoggle],[data-sid],a[href^='#track']");
   if (!t) return;
   if (t.matches("a[href^='#track']")) {
     e.preventDefault();
@@ -360,7 +366,7 @@ document.addEventListener("click", (e) => {
     if (e.target.closest("[data-sheet]")) return;
     state.item = null; state.cartOpen = false; state.payFor = null; render(); return;
   }
-  if (t.dataset.go) { state.view = t.dataset.go; state.item = null; state.cartOpen = false; render(); return; }
+  if (t.dataset.go) { state.view = t.dataset.go; state.item = null; state.cartOpen = false; if (t.dataset.go !== "track") state.trackError = false; render(); return; }
   if (t.dataset.openCart !== undefined) { state.cartOpen = true; render(); return; }
   if (t.dataset.cat !== undefined) { state.activeCat = t.dataset.cat || null; render(); return; }
   if (t.dataset.item) { const it = MENU.flatMap(c => c.items).find(x => x.id === t.dataset.item); state.item = it.id; render(); return; }
@@ -391,11 +397,20 @@ document.addEventListener("click", (e) => {
   if (t.dataset.paynow !== undefined) {
     const o = placeOrder(state.payFor); state.payFor = null; state.view = "confirm"; render(); return;
   }
-  if (t.dataset.track) { state.view = "track"; state.trackId = t.dataset.track; render(); return; }
-  if (t.dataset.tracklookup !== undefined) { state.trackId = (document.getElementById("t-id").value || "").toUpperCase().trim(); state.trackId = state.orders.find(o => o.id === state.trackId) ? state.trackId : null; render(); return; }
+  if (t.dataset.track) { state.view = "track"; state.trackId = t.dataset.track; state.trackError = false; render(); return; }
   if (t.dataset.advance) {
     const o = state.orders.find(x => x.id === t.dataset.advance);
-    if (o && o.status !== "completed") { setStatus(o, NEXT[o.status]); render(); }
+    if (o && o.status !== "completed") {
+      if (state.advanceArm === o.id) {
+        state.advanceArm = null; clearTimeout(armTimer);
+        setStatus(o, NEXT[o.status]);
+      } else {
+        state.advanceArm = o.id;
+        clearTimeout(armTimer);
+        armTimer = setTimeout(() => { state.advanceArm = null; if (state.view === "admin") render(); }, 4000);
+      }
+      render();
+    }
     return;
   }
   if (t.dataset.simtoggle !== undefined) { state.sim = !state.sim; store.set("lola_sim", state.sim); render(); return; }
@@ -405,6 +420,14 @@ document.addEventListener("input", (e) => {
   if (e.target.id === "f-phone") state.checkout.phone = e.target.value;
   if (e.target.id === "f-note") state.checkout.note = e.target.value;
   if (e.target.id === "f-addr") state.checkout.addr = e.target.value;
+});
+document.addEventListener("submit", (e) => {
+  if (e.target.id !== "t-form") return;
+  e.preventDefault();
+  const code = (document.getElementById("t-id").value || "").toUpperCase().trim();
+  state.trackError = !state.orders.some(o => o.id === code);
+  state.trackId = state.trackError ? null : code;
+  render();
 });
 document.addEventListener("keydown", (e) => { if (e.key === "Escape") { state.item = null; state.cartOpen = false; state.payFor = null; render(); } });
 function updateLivePrice() {
