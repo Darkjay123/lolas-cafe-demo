@@ -118,7 +118,7 @@ function menu() {
     ${cats.map(c => `
       <div class="cat serif">${c.name}</div>
       ${c.items.map(it => `
-        <div class="item-card" data-item="${it.id}">
+        <div class="item-card rv" data-item="${it.id}">
           <img src="${it.img}" alt="${it.name}" loading="lazy">
           <div class="info">
             <h3>${it.name}</h3>
@@ -323,6 +323,13 @@ function adminView() {
   ${footer()}`;
 }
 
+const io = (typeof IntersectionObserver !== "undefined") ? new IntersectionObserver((es) => {
+  es.forEach(e => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
+}, { rootMargin: "60px" }) : null;
+function reveal() {
+  if (!io) { document.querySelectorAll(".item-card.rv").forEach(el => el.classList.add("in")); return; }
+  document.querySelectorAll(".item-card.rv:not(.in)").forEach(el => io.observe(el));
+}
 function render() {
   const app = document.getElementById("app");
   const scroll = window.scrollY;
@@ -336,6 +343,7 @@ function render() {
   if (state.cartOpen) html += cartSheet();
   if (state.payFor) html += paymentModal(state.payFor);
   app.innerHTML = html;
+  reveal();
   window.scrollTo(0, state.view === "home" ? scroll : 0);
   state.cartOpen = state.cartOpen; /* keep */
 }
