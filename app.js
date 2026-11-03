@@ -85,7 +85,7 @@ function header() {
   const n = cartCount();
   return `
   <div class="hdr">
-    <div class="brand"><b>Lola's Cafe</b><span>Abraka</span></div>
+    <div class="brand"><img class="brand-logo" src="img/logo-dark.png" alt="Lola's Cafe"><span>Abraka</span></div>
     <div class="tools">
       <span class="chip">DEMO</span>
       <button class="track-pill" data-go="track">Track order</button>
@@ -133,7 +133,7 @@ function menu() {
 function footer() {
   return `
   <div class="ftr">
-    <b>Lola's Cafe</b> &middot; ${DEMO.address}<br>
+    <img class="ftr-badge" src="img/badge.png" alt="One cafe, every craving"><b>Lola's Cafe</b> &middot; ${DEMO.address}<br>
     ${DEMO.hours} &middot; ${DEMO.phone} / ${DEMO.phone2}
     <div class="demo-note">Demo build. Menu items and prices are samples, payment is simulated. The real build plugs in Lola's actual menu.</div>
     Demo built by John Enechukwu<br>

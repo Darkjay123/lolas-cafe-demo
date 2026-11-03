@@ -18,7 +18,8 @@ a{color:inherit}
 
 /* header */
 .hdr{position:sticky;top:0;z-index:40;background:rgba(250,244,234,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:12px 18px}
-.hdr .brand{display:flex;align-items:baseline;gap:8px}
+.hdr .brand{display:flex;align-items:center;gap:10px}
+.hdr .brand-logo{height:32px;display:block}
 .hdr .brand b{font-family:Fraunces,Georgia,serif;font-weight:700;font-size:21px;letter-spacing:.2px}
 .hdr .brand span{font-size:12px;line-height:16px;color:var(--ink2);font-weight:600}
 .hdr .tools{display:flex;align-items:center;gap:10px}
@@ -130,6 +131,7 @@ a{color:inherit}
 
 /* footer */
 .ftr{padding:26px 20px 34px;color:var(--ink2);font-size:12px;text-align:center;border-top:1px solid var(--line);background:#fff}
+.ftr-badge{height:54px;display:block;margin:0 auto 8px}
 .ftr b{color:var(--ink)}
 .ftr .demo-note{background:var(--amber-soft);color:#a2621f;border:1px solid #f3d9b6;border-radius:12px;padding:9px 12px;font-size:11px;font-weight:600;margin:12px auto;max-width:40ch}
 .ftr .admin-link{color:var(--ink2);font-size:11px;margin-top:10px;display:inline-block}
