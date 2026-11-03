@@ -1,0 +1,118 @@
+/* ===== Lola's Cafe wow layer ===== */
+/* ---------- splash ---------- */
+.wow-splash{position:fixed;inset:0;z-index:200;background:linear-gradient(160deg,#5c0c0c,#430e10);display:flex;align-items:center;justify-content:center;transition:clip-path .7s cubic-bezier(.7,0,.3,1);clip-path:inset(0 0 0 0)}
+.wow-splash.done{clip-path:inset(0 0 100% 0)}
+.wow-splash .ws-inner{text-align:center;animation:wsIn .8s cubic-bezier(.34,1.4,.64,1) both}
+.wow-splash img{width:180px;display:block;margin:0 auto 14px;filter:drop-shadow(0 12px 30px rgba(0,0,0,.35));animation:wsBob 2.4s ease-in-out infinite}
+.wow-splash .ws-tag{color:#fdc89e;font-family:Fraunces,Georgia,serif;font-style:italic;font-size:15px;letter-spacing:.4px;opacity:0;animation:wsFade .6s ease .5s forwards}
+@keyframes wsIn{from{opacity:0;transform:scale(.7) translateY(24px)}to{opacity:1;transform:none}}
+@keyframes wsBob{0%,100%{transform:translateY(0) rotate(-1.5deg)}50%{transform:translateY(-9px) rotate(1.5deg)}}
+@keyframes wsFade{to{opacity:1}}
+
+/* ---------- entrance (first load only) ---------- */
+body:not(.settled) .hdr{animation:slideDown .55s cubic-bezier(.34,1.25,.64,1) both}
+body:not(.settled) .hero .inner>*{opacity:0;animation:riseIn .7s cubic-bezier(.34,1.25,.64,1) forwards}
+body:not(.settled) .hero .inner h1{animation-delay:.15s}
+body:not(.settled) .hero .inner p{animation-delay:.3s}
+body:not(.settled) .hero .inner .meta{animation-delay:.45s}
+body:not(.settled) .hero{animation:heroIn .9s cubic-bezier(.34,1.25,.64,1) both}
+@keyframes slideDown{from{transform:translateY(-100%)}to{transform:none}}
+@keyframes riseIn{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
+@keyframes heroIn{from{transform:scale(1.06);filter:saturate(1.3)}to{transform:none;filter:none}}
+
+/* ---------- hero wow ---------- */
+.hero{position:relative;overflow:hidden}
+.hero img{transition:transform .12s linear}
+.hero .inner{position:relative;z-index:2}
+.hero .inner h1{background:linear-gradient(100deg,#fff 30%,#ffe3bd 50%,#fff 70%);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:sheen 5s linear infinite}
+@keyframes sheen{to{background-position:-200% 0}}
+.float-emoji{position:absolute;z-index:1;font-size:30px;opacity:.9;pointer-events:none;filter:drop-shadow(0 8px 14px rgba(0,0,0,.25));animation:drift var(--t,9s) ease-in-out infinite alternate}
+.float-emoji.e1{top:12%;left:8%;animation-duration:8s}
+.float-emoji.e2{top:58%;left:78%;animation-duration:11s;font-size:38px}
+.float-emoji.e3{top:70%;left:14%;animation-duration:13s;font-size:26px}
+@keyframes drift{from{transform:translateY(0) rotate(-8deg)}to{transform:translateY(-26px) rotate(8deg)}}
+
+/* ---------- ticker ---------- */
+.ticker{background:#5c0c0c;color:#fdc89e;overflow:hidden;white-space:nowrap;border-block:1px solid rgba(253,200,158,.25)}
+.ticker .tk{display:inline-block;padding:7px 0;font-size:11px;font-weight:700;letter-spacing:1.6px;animation:marq 22s linear infinite}
+@keyframes marq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* ---------- menu cards ---------- */
+.pills,.wrap{perspective:900px}
+.item-card{transform-style:preserve-3d;will-change:transform}
+.item-card .add{transition:transform .18s cubic-bezier(.34,1.8,.64,1),background .18s ease}
+.item-card .add:hover{transform:scale(1.12) rotate(90deg)}
+.item-card .add:active{transform:scale(.82)}
+.item-card.added .add{background:var(--green,#1e9e5a)!important}
+
+/* ---------- fly to cart ---------- */
+.fly-ghost{position:fixed;z-index:300;width:48px;height:48px;pointer-events:none;border-radius:50%;overflow:hidden;box-shadow:0 10px 24px rgba(0,0,0,.3);transition:transform .6s cubic-bezier(.5,-0.1,.7,1),opacity .6s ease}
+.fly-ghost img{width:100%;height:100%;object-fit:cover}
+.icon-btn.bump{animation:bump .45s cubic-bezier(.34,1.8,.64,1)}
+@keyframes bump{0%{transform:scale(1)}30%{transform:scale(1.25) rotate(-8deg)}60%{transform:scale(.92) rotate(6deg)}100%{transform:scale(1)}}
+.icon-btn .n{animation:npop .4s cubic-bezier(.34,1.8,.64,1)}
+@keyframes npop{from{transform:scale(0)}to{transform:scale(1)}}
+
+/* ---------- confirm / confetti ---------- */
+.tick{position:relative}
+.tick::after{content:"";position:absolute;inset:-8px;border-radius:50%;border:3px solid rgba(30,158,90,.5);animation:ring 1s cubic-bezier(.2,.8,.3,1) .2s both;pointer-events:none}
+@keyframes ring{from{transform:scale(.4);opacity:1}to{transform:scale(2.1);opacity:0}}
+.wow-confetti{position:fixed;inset:0;z-index:290;pointer-events:none}
+
+/* ---------- loyalty ---------- */
+.loyal{background:linear-gradient(150deg,#5c0c0c,#7a1a12);color:#fce7c1;border-radius:18px;padding:16px;margin:18px 0 0;text-align:left;box-shadow:0 14px 30px rgba(92,12,12,.25);animation:riseIn .6s cubic-bezier(.34,1.25,.64,1) both}
+.loyal-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:10px}
+.loyal-h b{font-family:Fraunces,Georgia,serif;font-size:15px}
+.loyal-h span{font-size:11px;opacity:.85;text-align:right}
+.loyal-row{display:flex;gap:7px;margin-bottom:10px}
+.loyal-row .ws{flex:1;aspect-ratio:1;max-width:30px;border-radius:50%;border:1.5px dashed rgba(252,231,193,.45);display:flex;align-items:center;justify-content:center;font-size:13px;font-style:normal}
+.loyal-row .ws.on{background:#fdc89e;border:0;color:#5c0c0c;animation:stampIn .5s cubic-bezier(.34,1.8,.64,1) both;animation-delay:var(--d,0ms)}
+.loyal-row .ws.on::after{content:"✓";font-weight:900}
+.loyal-row .ws.pop{animation-name:stampPop}
+@keyframes stampIn{from{transform:scale(0) rotate(-30deg)}to{transform:scale(1) rotate(0)}}
+@keyframes stampPop{0%{transform:scale(0) rotate(-40deg)}60%{transform:scale(1.5) rotate(8deg)}100%{transform:scale(1)}}
+.loyal-p{height:5px;border-radius:99px;background:rgba(252,231,193,.2);overflow:hidden}
+.loyal-p i{display:block;height:100%;background:linear-gradient(90deg,#e8821e,#fdc89e);border-radius:99px;transition:width 1s cubic-bezier(.34,1.25,.64,1)}
+.loyal-f{font-size:10.5px;opacity:.8;margin-top:8px}
+.loyal-chip{border:1.5px solid #f3d9b6;background:#fff7ec;color:#a2621f;border-radius:99px;font-size:11px;font-weight:700;padding:7px 11px;display:flex;align-items:center;gap:5px;cursor:pointer;animation:chipIn .5s cubic-bezier(.34,1.25,.64,1) both}
+@keyframes chipIn{from{opacity:0;transform:translateX(14px)}to{opacity:1;transform:none}}
+.loyal-sheet{position:fixed;inset:0;z-index:120;background:rgba(44,30,22,.5);backdrop-filter:blur(6px);display:flex;align-items:flex-end;animation:fadeIn .25s ease}
+.loyal-sheet .ls-card{background:#fff;width:100%;border-radius:22px 22px 0 0;padding:22px 20px 30px;animation:sheetUp .35s cubic-bezier(.34,1.25,.64,1)}
+.loyal-sheet .loyal{margin:0;background:linear-gradient(150deg,#5c0c0c,#7a1a12)}
+@keyframes fadeIn{from{opacity:0}}
+@keyframes sheetUp{from{transform:translateY(60%)}}
+
+/* ---------- toast ---------- */
+.wow-toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:310;background:#2c1e16;color:#fce7c1;font-size:12.5px;font-weight:600;padding:11px 18px;border-radius:99px;box-shadow:0 12px 28px rgba(0,0,0,.35);animation:toastIn .45s cubic-bezier(.34,1.4,.64,1) both;max-width:88vw;text-align:center}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,16px) scale(.9)}to{opacity:1;transform:translate(-50%,0) scale(1)}}
+.wow-toast.out{animation:toastOut .4s ease forwards}
+@keyframes toastOut{to{opacity:0;transform:translate(-50%,10px)}}
+
+/* ---------- tracking wow ---------- */
+.timeline{position:relative}
+.tl-fill{position:absolute;left:13px;top:18px;width:3px;border-radius:99px;background:linear-gradient(180deg,#e8821e,#1e9e5a);transition:height .8s cubic-bezier(.34,1.25,.64,1);z-index:0}
+.tl-fill::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent,rgba(255,255,255,.7) 50%,transparent);background-size:100% 200%;animation:shimmer 1.8s linear infinite;border-radius:99px}
+@keyframes shimmer{from{background-position:0 -100%}to{background-position:0 100%}}
+.tstep{position:relative;z-index:1}
+.tstep .dot{position:relative}
+.tstep.now .dot{box-shadow:0 0 0 0 rgba(30,158,90,.5);animation:halo 1.6s ease-out infinite}
+@keyframes halo{0%{box-shadow:0 0 0 0 rgba(30,158,90,.45)}70%{box-shadow:0 0 0 12px rgba(30,158,90,0)}100%{box-shadow:0 0 0 0 rgba(30,158,90,0)}}
+.tl-chef{position:absolute;left:-4px;z-index:2;font-size:22px;transform:translateX(-26px);transition:top .8s cubic-bezier(.34,1.25,.64,1);animation:chefBob 1s ease-in-out infinite;filter:drop-shadow(0 4px 8px rgba(0,0,0,.2))}
+@keyframes chefBob{0%,100%{transform:translateX(-26px) translateY(0)}50%{transform:translateX(-26px) translateY(-6px)}}
+.badge.b-kitchen,.badge.b-confirmed{animation:badgePulse 1.6s ease-in-out infinite}
+@keyframes badgePulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+
+/* ---------- generic press feedback ---------- */
+.btn,.pill,.track-pill{transition:transform .15s cubic-bezier(.34,1.8,.64,1)}
+.btn:active,.pill:active,.track-pill:active{transform:scale(.94)}
+.pill.on{animation:pillPop .3s cubic-bezier(.34,1.8,.64,1)}
+@keyframes pillPop{from{transform:scale(.85)}to{transform:scale(1)}}
+
+/* ---------- cart sheet ---------- */
+.sheet.anim{animation:sheetUp2 .35s cubic-bezier(.34,1.25,.64,1)}
+@keyframes sheetUp2{from{transform:translateY(100%)}to{transform:none}}
+
+@media (prefers-reduced-motion: reduce){
+  .wow-splash,.fly-ghost,.wow-confetti,.float-emoji{display:none!important}
+  *{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}

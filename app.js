@@ -61,6 +61,7 @@ function placeOrder(form) {
   state.orders.unshift(o); store.set("lola_orders", state.orders);
   state.cart = []; store.set("lola_cart", state.cart);
   state.lastOrder = o.id;
+  if (window.LolaWow) window.LolaWow.onOrder(o);
   return o;
 }
 function setStatus(o, s) {
