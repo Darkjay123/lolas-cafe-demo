@@ -185,17 +185,6 @@ const LolaWow = (() => {
       });
     }
     heroImg = hero.querySelector("img");
-    if (!RM) {
-      const pills = document.querySelector(".pills");
-      if (pills && !document.querySelector(".hero-cta")) {
-        const cta = document.createElement("button");
-        cta.className = "btn amber hero-cta";
-        cta.type = "button";
-        cta.textContent = "Start your order";
-        cta.addEventListener("click", () => { const m = document.querySelector(".pills"); if (m) m.scrollIntoView({ behavior: "smooth", block: "start" }); });
-        pills.parentNode.insertBefore(cta, pills);
-      }
-    }
   }
   function parallax() {
     if (!heroImg || RM) return;
