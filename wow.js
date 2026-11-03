@@ -7,6 +7,8 @@ const LolaWow = (() => {
   const GOAL = 10, STEP = 10000, FREE = "Chicken Shawarma";
   const stampCount = () => Math.floor(get("lola_spend", 0) / STEP);
   let earnedNow = 0, beforeNow = 0, toNext = 0, lastCount = 0, firstLoad = true, heroImg = null, hadOverlay = false;
+  let spyIO = null, cartBar = null;
+  const spyCats = new Set(), counted = new Set();
 
   /* ---------- splash ---------- */
   function splash() {
@@ -108,6 +110,15 @@ const LolaWow = (() => {
     if (!anchor || anchor.parentElement.querySelector(".loyal")) return;
     const fill = beforeNow + earnedNow;
     anchor.insertAdjacentHTML("afterend", stampCard(fill, earnedNow ? beforeNow : null));
+    if (!RM) setTimeout(() => {
+      const st = document.querySelector(".center .loyal .ws.pop");
+      if (!st) return;
+      const r = st.getBoundingClientRect(), sp = document.createElement("i");
+      sp.className = "stamp-spark"; sp.textContent = "\u2728";
+      sp.style.left = (r.left + r.width / 2) + "px"; sp.style.top = r.top + "px";
+      document.body.appendChild(sp);
+      setTimeout(() => sp.remove(), 950);
+    }, 450);
     const tick = document.querySelector(".center .tick");
     if (tick) { const r = tick.getBoundingClientRect(); confetti(r.left + r.width / 2, r.top + r.height / 2); }
     const prog = fill % GOAL;
@@ -174,6 +185,17 @@ const LolaWow = (() => {
       });
     }
     heroImg = hero.querySelector("img");
+    if (!RM) {
+      const pills = document.querySelector(".pills");
+      if (pills && !document.querySelector(".hero-cta")) {
+        const cta = document.createElement("button");
+        cta.className = "btn amber hero-cta";
+        cta.type = "button";
+        cta.textContent = "Start your order";
+        cta.addEventListener("click", () => { const m = document.querySelector(".pills"); if (m) m.scrollIntoView({ behavior: "smooth", block: "start" }); });
+        pills.parentNode.insertBefore(cta, pills);
+      }
+    }
   }
   function parallax() {
     if (!heroImg || RM) return;
@@ -235,10 +257,75 @@ const LolaWow = (() => {
       if (c !== lastCount) { n.style.animation = "none"; void n.offsetWidth; n.style.animation = ""; lastCount = c; }
     }
     parallax();
+    priceWatch();
+    spyInit();
   }
   const app = document.getElementById("app");
   if (app) new MutationObserver(() => requestAnimationFrame(afterRender)).observe(app, { childList: true, subtree: false });
 
+  /* ---------- round 2: ripple, scroll-spy, cart bar, count-up ---------- */
+  function addRipple(e) {
+    if (RM) return;
+    const el = e.target.closest(".btn,.pill,.add");
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    const d = Math.max(r.width, r.height) * 2.1;
+    const s = document.createElement("span");
+    s.className = "rp";
+    s.style.width = s.style.height = d + "px";
+    s.style.left = (e.clientX - r.left - d / 2) + "px";
+    s.style.top = (e.clientY - r.top - d / 2) + "px";
+    el.appendChild(s);
+    setTimeout(() => s.remove(), 650);
+  }
+  function countUp(el) {
+    const v = parseInt((el.textContent || "").replace(/\D/g, ""), 10);
+    if (!v || RM) return;
+    const t0 = performance.now(), dur = 620;
+    const tick = (t) => {
+      const p = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - p, 3);
+      el.textContent = "\u20a6" + Math.round(v * e).toLocaleString("en-US");
+      if (p < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }
+  function priceWatch() {
+    document.querySelectorAll(".item-card.in").forEach(card => {
+      const id = card.dataset.item;
+      if (!id || counted.has(id)) return;
+      counted.add(id);
+      const p = card.querySelector(".price");
+      if (p) countUp(p);
+    });
+  }
+  function spyInit() {
+    if (RM) return;
+    if (spyIO) { document.querySelectorAll(".cat").forEach(c => spyIO.observe(c)); return; }
+    spyIO = new IntersectionObserver((ents) => {
+      ents.forEach(en => { if (en.isIntersecting) spyCats.add(en.target); else spyCats.delete(en.target); });
+      const arr = [...spyCats];
+      const name = arr.length ? arr[arr.length - 1].textContent.trim() : null;
+      document.querySelectorAll(".pill").forEach(p => {
+        p.classList.toggle("spy", !!name && p.textContent.trim() === name && !p.classList.contains("on"));
+      });
+    }, { rootMargin: "-38% 0px -55% 0px" });
+    document.querySelectorAll(".cat").forEach(c => spyIO.observe(c));
+  }
+  function onCart(count, total) {
+    if (!cartBar) {
+      cartBar = document.createElement("div");
+      cartBar.className = "cart-bar";
+      cartBar.setAttribute("role", "button");
+      cartBar.setAttribute("aria-label", "Open cart");
+      cartBar.innerHTML = '<span class="cb-n"></span><span class="cb-go">View cart</span>';
+      cartBar.addEventListener("click", () => { const b = document.querySelector("[data-open-cart]"); if (b) b.click(); });
+      document.body.appendChild(cartBar);
+    }
+    const home = !location.hash || location.hash === "#/" || location.hash === "#home" || location.hash === "#";
+    const show = count > 0 && home && !document.querySelector(".overlay") && !document.querySelector(".center .tick");
+    cartBar.classList.toggle("show", show);
+    if (show) cartBar.querySelector(".cb-n").innerHTML = "<b>" + count + "</b>&nbsp;item" + (count > 1 ? "s" : "") + " &middot; &#8358;" + total.toLocaleString("en-US");
+  }
   /* ---------- events ---------- */
   document.addEventListener("click", e => {
     const add = e.target.closest("[data-add],[data-addmodal]");
@@ -250,7 +337,8 @@ const LolaWow = (() => {
     flyToCart(img);
     if (card) { card.classList.add("added"); setTimeout(() => card.classList.remove("added"), 900); }
   }, true);
-  addEventListener("scroll", () => parallax(), { passive: true });
+  document.addEventListener("pointerdown", addRipple, { passive: true });
+  addEventListener("scroll", () => { parallax(); priceWatch(); }, { passive: true });
   addEventListener("resize", () => decorateTrack());
   addEventListener("DOMContentLoaded", () => {
     splash();
@@ -259,5 +347,5 @@ const LolaWow = (() => {
   });
   if (document.readyState !== "loading") { splash(); afterRender(); setTimeout(() => { document.body.classList.add("settled"); firstLoad = false; }, 2700); }
 
-  return { onOrder, confetti, toast, stampCard };
+  return { onOrder, confetti, toast, stampCard, onCart };
 })();

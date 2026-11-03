@@ -353,6 +353,7 @@ function render() {
   reveal();
   window.scrollTo(0, state.view === "home" ? scroll : 0);
   state.cartOpen = state.cartOpen; /* keep */
+  if (window.LolaWow && window.LolaWow.onCart) window.LolaWow.onCart(cartCount(), cartTotal());
 }
 
 /* ---------- events ---------- */
